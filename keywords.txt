@@ -1,0 +1,24 @@
+##############################################
+# Syntax Coloring Map - PestoLink-Receive
+##############################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+PestoLinkParser KEYWORD1
+PestoLink KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	    KEYWORD2
+update	    KEYWORD2
+getAxis	    KEYWORD2
+getRawAxis  KEYWORD2
+buttonHeld  KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
