@@ -1,7 +1,9 @@
 # PestoLink-Receive
 *v1.0.0*
 
-This WIP library is a Bluetooth Low Energy alteritive to [AlfredoConnect](https://github.com/AlfredoElectronics/AlfredoConnect-Receive)
+PestoLink-Receive is an Arduino library designed to run on a microcontroller unit (MCU) with Bluetooth Low Energy (BLE), for example ESP32. If you set up an MCU with PestoLink-Receive, you can then open the web app [PestoLink-Online](https://github.com/AlfredoSystems/PestoLink-Online), connect to your MCU with BLE, and send gamepad data to the MCU.
+
+This WIP library is a BLE alteritive to [AlfredoConnect-Receive](https://github.com/AlfredoElectronics/AlfredoConnect-Receive)
 
 ### Installation
 
