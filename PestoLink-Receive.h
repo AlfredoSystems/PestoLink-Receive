@@ -1,5 +1,5 @@
-#ifndef ALFREDOCONNECT_H
-#define ALFREDOCONNECT_H
+#ifndef PESTOLINK_H
+#define PESTOLINK_H
 
 #include "Arduino.h"
 #include <inttypes.h>
@@ -20,4 +20,4 @@ class PestoLinkParser {
 extern PestoLinkParser PestoLink;
 #endif
 
-#endif
+#endif //PESTOLINK_H

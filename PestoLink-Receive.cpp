@@ -1,4 +1,4 @@
-#include "PestoLink.h"
+#include "PestoLink-Receive.h"
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_PESTOLINK)
 PestoLinkParser PestoLink;
@@ -18,8 +18,13 @@ void PestoLinkParser::begin(char *localName) {
 
   ServicePestoBle.addCharacteristic(CharacteristicGamepad);
   BLE.addService(ServicePestoBle);
-
+  
+  int8_t zeroChara[] = {0,0,0,0,0,0,0,0};
+  CharacteristicGamepad.writeValue(zeroChara, 8, false); 
+  
   BLE.advertise();
+
+
 }
 
 //Todo: create a seperate "bool isConnected()" function?
@@ -28,6 +33,10 @@ bool PestoLinkParser::update() {
 
   if (central) {
     if (central.connected()) {
+		for(int i = 0; i < 8; i++){
+	        Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
+		}
+		Serial.println(" ");
       return true;
     }
   }
