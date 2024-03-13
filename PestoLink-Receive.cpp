@@ -31,16 +31,24 @@ void PestoLinkParser::begin(char *localName) {
 bool PestoLinkParser::update() {
   BLEDevice central = BLE.central();
 
-  if (central) {
-    if (central.connected()) {
-		for(int i = 0; i < 8; i++){
-	        Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
-		}
-		Serial.println(" ");
-      return true;
-    }
+  if (!central) {
+	return false;
   }
-  return false;
+  
+  if (!central.connected()) {
+	return false;
+  }
+  
+  if((uint8_t)*(CharacteristicGamepad.value()) != 0x01){
+    return false;
+  }
+  
+  for(int i = 0; i < 20; i++){
+    Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
+  }
+  
+  Serial.println(" ");
+  return true;
 }
 
 float PestoLinkParser::getAxis(uint8_t axis_num) {
@@ -49,10 +57,10 @@ float PestoLinkParser::getAxis(uint8_t axis_num) {
 }
 
 uint8_t PestoLinkParser::getRawAxis(uint8_t axis_num) {
-  return (uint8_t)*( CharacteristicGamepad.value() + axis_num);
+  return (uint8_t)*( CharacteristicGamepad.value() + axis_num + 0x01);
 }
 
 bool PestoLinkParser::buttonHeld(uint8_t button_num) {
-  uint8_t raw_buttons = (uint8_t)*( CharacteristicGamepad.value() + 4);
+  uint16_t raw_buttons = ((uint16_t)*( CharacteristicGamepad.value() + 6) << 8) + (uint16_t)*( CharacteristicGamepad.value() + 5);
   return (bool)((raw_buttons >> (button_num)) & 0x01);
 }
