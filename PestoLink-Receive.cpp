@@ -43,11 +43,11 @@ bool PestoLinkParser::update() {
     return false;
   }
   
-  for(int i = 0; i < 20; i++){
-    Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
-  }
+  //for(int i = 0; i < 20; i++){
+  //  Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
+  //}
+  //Serial.println(" ");
   
-  Serial.println(" ");
   return true;
 }
 
