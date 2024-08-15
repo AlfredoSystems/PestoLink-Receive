@@ -81,6 +81,8 @@ bool PestoLinkParser::buttonHeld(uint8_t button_num) {
   return (bool)((raw_buttons >> (button_num)) & 0x01);
 }
 
-void PestoLinkParser::setBatteryVal(uint8_t battery_val){
-    this->_batteryVal = battery_val;
+void PestoLinkParser::setBatteryVal(float battery_val){
+	uint8_t batteryByte = 255.0 * battery_val / 12.0;
+
+    this->_batteryVal = batteryByte;
 }
