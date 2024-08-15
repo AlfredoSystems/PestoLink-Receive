@@ -13,7 +13,10 @@ class PestoLinkParser {
         float getAxis(uint8_t button_num);
         uint8_t getRawAxis(uint8_t button_num);
         bool buttonHeld(uint8_t button_num);
-		
+        void setBatteryVal(uint8_t battery_val);
+	
+	private:
+		uint8_t _batteryVal = 0;
 };
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_PESTOLINK)

@@ -4,8 +4,10 @@
 PestoLinkParser PestoLink;
 #endif
 
-BLEService        ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
-BLECharacteristic CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 6, true);
+BLEService       				ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
+
+BLECharacteristic 				CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 18, true);
+BLEUnsignedCharCharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify );
 
 void PestoLinkParser::begin(char *localName) {
   if (!BLE.begin()) {
@@ -17,10 +19,13 @@ void PestoLinkParser::begin(char *localName) {
   BLE.setAdvertisedService(ServicePestoBle);
 
   ServicePestoBle.addCharacteristic(CharacteristicGamepad);
+  ServicePestoBle.addCharacteristic(CharacteristicTelemetry);
   BLE.addService(ServicePestoBle);
   
-  int8_t zeroChara[] = {0,0,0,0,0,0,0,0};
-  CharacteristicGamepad.writeValue(zeroChara, 8, false); 
+  int8_t zeroChara[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  CharacteristicGamepad.writeValue(zeroChara, 18, false); 
+  
+  CharacteristicTelemetry.writeValue(0); 
   
   BLE.advertise();
 
@@ -48,6 +53,12 @@ bool PestoLinkParser::update() {
   //}
   //Serial.println(" ");
   
+  static long lastBatteryMs = 0;
+  if (millis() > lastBatteryMs + 500 ){
+    CharacteristicTelemetry.writeValue(_batteryVal);
+    lastBatteryMs = millis();
+  }
+  
   return true;
 }
 
@@ -61,6 +72,15 @@ uint8_t PestoLinkParser::getRawAxis(uint8_t axis_num) {
 }
 
 bool PestoLinkParser::buttonHeld(uint8_t button_num) {
-  uint16_t raw_buttons = ((uint16_t)*( CharacteristicGamepad.value() + 6) << 8) + (uint16_t)*( CharacteristicGamepad.value() + 5);
+  
+  uint8_t raw_buttons_LSB = (uint8_t)*( CharacteristicGamepad.value() + 5);
+  uint8_t raw_buttons_MSB = (uint8_t)*( CharacteristicGamepad.value() + 6);
+
+  uint16_t raw_buttons = (((uint16_t)(raw_buttons_MSB)) << 8) + (uint16_t)(raw_buttons_LSB);
+  
   return (bool)((raw_buttons >> (button_num)) & 0x01);
+}
+
+void PestoLinkParser::setBatteryVal(uint8_t battery_val){
+    this->_batteryVal = battery_val;
 }
