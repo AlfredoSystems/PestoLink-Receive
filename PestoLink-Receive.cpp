@@ -81,8 +81,21 @@ bool PestoLinkParser::buttonHeld(uint8_t button_num) {
   return (bool)((raw_buttons >> (button_num)) & 0x01);
 }
 
+bool PestoLinkParser::keyHeld(Key key) {
+
+    // Start checking from the 7th byte (index 7) to the 17th byte (index 17)
+    for (int i = 7; i < 18; ++i) {
+		uint8_t keyNum = (uint8_t)*(CharacteristicGamepad.value() + i);
+        if (keyNum == static_cast<uint8_t>(key)) {
+            return true;
+        }
+    }
+
+    // If the key is not found in the last 11 bytes, return false
+    return false;
+}
+
 void PestoLinkParser::setBatteryVal(float battery_val){
 	uint8_t batteryByte = 255.0 * battery_val / 12.0;
-
     this->_batteryVal = batteryByte;
 }

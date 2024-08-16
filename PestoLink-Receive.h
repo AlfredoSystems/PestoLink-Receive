@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <String.h>
 #include <ArduinoBLE.h>
+#include "Keys.h"
 
 class PestoLinkParser {
     public:
@@ -14,6 +15,8 @@ class PestoLinkParser {
         uint8_t getRawAxis(uint8_t button_num);
         bool buttonHeld(uint8_t button_num);
         void setBatteryVal(float battery_val);
+		bool keyHeld(Key key);
+
 	
 	private:
 		uint8_t _batteryVal = 0;
