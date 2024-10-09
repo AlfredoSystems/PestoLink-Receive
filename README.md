@@ -1,5 +1,4 @@
 # PestoLink-Receive
-*v1.0.1*
 
 Do you want to Control your ESP32 robot wirelessly over Bluetooth? PestoLink-Receive is the library for you! Once you set up your robot with PestoLink-Receive, you can open the web app [PestoLink-Online](https://github.com/AlfredoSystems/PestoLink-Online), connect to your ESP32 with Bluetooth, and drive your robot in real time!
 
