@@ -3,7 +3,6 @@
 
 #include "Arduino.h"
 #include <inttypes.h>
-#include <String.h>
 #include <ArduinoBLE.h>
 #include "Keys.h"
 
