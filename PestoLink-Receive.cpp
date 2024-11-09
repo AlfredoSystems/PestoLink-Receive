@@ -1,15 +1,13 @@
 #include "PestoLink-Receive.h"
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_PESTOLINK)
 PestoLinkParser PestoLink;
-#endif
 
-BLEService       				ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
+BLEService ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
 
-BLECharacteristic 				CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 18, true);
-BLEUnsignedCharCharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify );
+BLECharacteristic CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 18, true);
+BLECharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify, 11, true);
 
-void PestoLinkParser::begin(char *localName) {
+void PestoLinkParser::begin(const char *localName) {
   if (!BLE.begin()) {
     Serial.println("starting Bluetooth® Low Energy module failed!");
     while (1);
@@ -22,14 +20,10 @@ void PestoLinkParser::begin(char *localName) {
   ServicePestoBle.addCharacteristic(CharacteristicTelemetry);
   BLE.addService(ServicePestoBle);
   
-  int8_t zeroChara[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  CharacteristicGamepad.writeValue(zeroChara, 18, false); 
-  
-  CharacteristicTelemetry.writeValue(0); 
+  int8_t emptyGamepad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  CharacteristicGamepad.writeValue(emptyGamepad, 18, false); 
   
   BLE.advertise();
-
-
 }
 
 //Todo: create a seperate "bool isConnected()" function?
@@ -52,12 +46,6 @@ bool PestoLinkParser::update() {
   //  Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
   //}
   //Serial.println(" ");
-  
-  static long lastBatteryMs = 0;
-  if (millis() > lastBatteryMs + 500 ){
-    CharacteristicTelemetry.writeValue(_batteryVal);
-    lastBatteryMs = millis();
-  }
   
   return true;
 }
@@ -95,7 +83,49 @@ bool PestoLinkParser::keyHeld(Key key) {
     return false;
 }
 
-void PestoLinkParser::setBatteryVal(float battery_val){
-	uint8_t batteryByte = 255.0 * battery_val / 12.0;
-    this->_batteryVal = batteryByte;
+void PestoLinkParser::printBatteryVoltage(float batteryVoltage){
+  char voltageString[8];       // Array to hold the resulting string
+
+  dtostrf(batteryVoltage, 5, 2, voltageString);  // 4 width, 2 decimal places
+  strcat(voltageString, " V");  // Append " V" to the string
+
+  if(batteryVoltage >= 7.6) {
+      print(voltageString, "00FF00");
+  } else if (batteryVoltage >= 7) {
+      print(voltageString, "FFFF00");
+  } else {
+      print(voltageString, "FF0000");
+  }
+
+
+}
+
+void PestoLinkParser::print(const char *telemetry,const char *hexCode){
+  if(lastTelemetryMs + 500 > millis()){
+    return;
+  }
+
+  uint8_t result[11];
+
+  // Loop over the first eight characters of the input
+  for (int i = 0; i < 8; i++) {
+      // If there's a character at this position, use its ASCII value
+      if (telemetry[i] != '\0') {
+          result[i] = static_cast<uint8_t>(telemetry[i]);
+      } else {
+          // If we're out of characters, set the rest to null (0)
+          result[i] = 0;
+      }
+  }
+
+  // Adjust pointer if the hex code starts with "0x"
+  if (hexCode[0] == '0' && hexCode[1] == 'x') hexCode += 2;
+  long color = strtol(hexCode, nullptr, 16);
+  result[8] = (color >> 16) & 0xFF;
+  result[9] = (color >> 8) & 0xFF;
+  result[10] = color & 0xFF;
+  
+  CharacteristicTelemetry.writeValue(result, 11, false); 
+
+  lastTelemetryMs = millis();
 }
