@@ -96,8 +96,6 @@ void PestoLinkParser::printBatteryVoltage(float batteryVoltage){
   } else {
       print(voltageString, "FF0000");
   }
-
-
 }
 
 void PestoLinkParser::print(const char *telemetry,const char *hexCode){
