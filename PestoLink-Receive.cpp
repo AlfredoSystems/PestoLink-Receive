@@ -83,6 +83,11 @@ bool PestoLinkParser::keyHeld(Key key) {
     return false;
 }
 
+void PestoLinkParser::setBatteryVal(float batteryVoltage){
+  printBatteryVoltage(batteryVoltage);
+}
+
+
 void PestoLinkParser::printBatteryVoltage(float batteryVoltage){
   char voltageString[8];       // Array to hold the resulting string
 

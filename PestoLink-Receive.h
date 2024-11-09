@@ -15,6 +15,7 @@ class PestoLinkParser {
         bool buttonHeld(uint8_t button_num);
 		bool keyHeld(Key key);
 
+        void setBatteryVal(float batteryVoltage);
         void printBatteryVoltage(float batteryVoltage);
         void print(const char *telemetry, const char *hexCode = "0x808080");	
 	private:
