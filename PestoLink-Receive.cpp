@@ -132,3 +132,25 @@ void PestoLinkParser::print(const char *telemetry,const char *hexCode){
 
   lastTelemetryMs = millis();
 }
+void PestoLinkParser::printToTerminal(const char *text){
+  if(lastTerminalMs + 500 > millis()){
+    return;
+  }
+
+  uint8_t result[11];
+
+  // Loop over the first 64 characters of the input
+  for (int i = 0; i < 64; i++) {
+      // If there's a character at this position, use its ASCII value
+      if (telemetry[i] != '\0') {
+          result[i] = static_cast<uint8_t>(telemetry[i]);
+      } else {
+          // If we're out of characters, set the rest to null (0)
+          result[i] = 0;
+      }
+  }
+  
+  CharacteristicTelemetry.writeValue(result, 11, false); 
+
+  lastTerminalMs = millis();
+}
