@@ -6,7 +6,7 @@ BLEService ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
 
 BLECharacteristic CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 18, true);
 BLECharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify, 11, true);
-BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830", BLERead | BLENotify, 64, true);
+BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830", BLERead | BLENotify, 1024, true);
 
 void PestoLinkParser::begin(const char *localName) {
   if (!BLE.begin()) {
@@ -139,10 +139,10 @@ void PestoLinkParser::printToTerminal(const char *text){
     return;
   }
 
-  uint8_t result[64];
+  uint8_t result[1024];
 
-  // Loop over the first 64 characters of the input
-  for (int i = 0; i < 64; i++) {
+  // Loop over the first 1024 characters of the input
+  for (int i = 0; i < 1024; i++) {
       // If there's a character at this position, use its ASCII value
       if (text[i] != '\0') {
           result[i] = static_cast<uint8_t>(text[i]);
@@ -152,7 +152,7 @@ void PestoLinkParser::printToTerminal(const char *text){
       }
   }
   
-  CharacteristicTerminal.writeValue(result, 64, false); 
+  CharacteristicTerminal.writeValue(result, 1024, false); 
 
   lastTerminalMs = millis();
 }
