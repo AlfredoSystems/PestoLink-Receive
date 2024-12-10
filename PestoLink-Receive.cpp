@@ -6,6 +6,7 @@ BLEService ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
 
 BLECharacteristic CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 18, true);
 BLECharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify, 11, true);
+BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830", BLERead | BLENotify, 64, true);
 
 void PestoLinkParser::begin(const char *localName) {
   if (!BLE.begin()) {
@@ -18,6 +19,7 @@ void PestoLinkParser::begin(const char *localName) {
 
   ServicePestoBle.addCharacteristic(CharacteristicGamepad);
   ServicePestoBle.addCharacteristic(CharacteristicTelemetry);
+  ServicePestoBle.addCharacteristic(CharacteristicTerminal);
   BLE.addService(ServicePestoBle);
   
   int8_t emptyGamepad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -150,7 +152,7 @@ void PestoLinkParser::printToTerminal(const char *text){
       }
   }
   
-  CharacteristicTelemetry.writeValue(result, 64, false); 
+  CharacteristicTerminal.writeValue(result, 64, false); 
 
   lastTerminalMs = millis();
 }
