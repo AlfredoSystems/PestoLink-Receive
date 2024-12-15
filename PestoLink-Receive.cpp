@@ -8,6 +8,9 @@ BLECharacteristic CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", 
 BLECharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify, 11, true);
 BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830", BLERead | BLENotify, 1024, true);
 
+#define MAX_TERMINAL_LENGTH 64
+char terminalText[MAX_TERMINAL_LENGTH]; // make space to create terminal text in
+
 void PestoLinkParser::begin(const char *localName) {
   if (!BLE.begin()) {
     Serial.println("starting Bluetooth® Low Energy module failed!");
@@ -134,21 +137,29 @@ void PestoLinkParser::print(const char *telemetry,const char *hexCode){
 
   lastTelemetryMs = millis();
 }
+
+/**
+  example:
+  int number = millis(); // just an example of a number
+  //  snprintf is a great way to add numbers to text in C++ https://www.geeksforgeeks.org/sprintf-in-c/ It's a bit strange but I think you'll find it useful. ("text"+number doesn't work in C++)
+  snprintf(text, 64, "distance: %d", number);
+  PestoLink.printToTerminal(text);
+ */
 void PestoLinkParser::printToTerminal(const char *text){
   if(lastTerminalMs + 500 > millis()){
     return;
   }
 
-  uint8_t result[64];
+  uint8_t result[MAX_TERMINAL_LENGTH];
 
   // Loop over the first 64 characters of the input
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < MAX_TERMINAL_LENGTH; i++) {
       // If there's a character at this position, use its ASCII value
       if (text[i] != '\0') {
           result[i] = static_cast<uint8_t>(text[i]);
       } else {
           // If we're out of characters, set the rest to null (0)
-          for(;i<64;i++){
+          for( ; i < MAX_TERMINAL_LENGTH; i++){
 	          result[i] = 0;
 	      }
       }
@@ -157,4 +168,18 @@ void PestoLinkParser::printToTerminal(const char *text){
   CharacteristicTerminal.writeValue(result, 64, false); 
 
   lastTerminalMs = millis();
+}
+
+/**
+  example:
+  int number = millis(); // just an example of a number
+  PestoLink.printfToTerminal("distance: %d", number);
+*/
+void PestoLinkParser::printfToTerminal(const char * format, ... ){
+  va_list args;
+  va_start(args, format);
+  // https://cplusplus.com/reference/cstdio/vsnprintf/
+  vsnprintf(terminalText, MAX_TERMINAL_LENGTH, format, args);
+  va_end(args);
+  printToTerminal(terminalText);
 }
