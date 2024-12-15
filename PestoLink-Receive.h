@@ -18,8 +18,11 @@ class PestoLinkParser {
         void setBatteryVal(float batteryVoltage);
         void printBatteryVoltage(float batteryVoltage);
         void print(const char *telemetry, const char *hexCode = "0x808080");	
+        void printToTerminal(const char *text);
+        void printfToTerminal(const char * format, ... );
 	private:
 		uint32_t lastTelemetryMs;
+    uint32_t lastTerminalMs;
 };
 
 extern PestoLinkParser PestoLink;
