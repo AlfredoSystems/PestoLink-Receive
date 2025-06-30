@@ -14,6 +14,14 @@ BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830",
 
 char terminalText[TERMINAL_CHAR_LENGTH]; // make space to create terminal text in for printfTerminal
 
+void taskUpdatePestoLink(void* pvParameters){
+    while (true) {
+        PestoLink.update();
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+}
+
+
 void PestoLinkParser::begin(const char *localName) {
   _isConnected = false;
 	_lastTelemetryMs = 0;
@@ -37,6 +45,8 @@ void PestoLinkParser::begin(const char *localName) {
   CharacteristicGamepad.writeValue(emptyGamepad, 18, false); 
   
   BLE.advertise();
+
+  xTaskCreatePinnedToCore(taskUpdatePestoLink, "taskUpdatePestoLink", 4096, NULL, 2, NULL, 1);
 }
 
 bool PestoLinkParser::update() {
