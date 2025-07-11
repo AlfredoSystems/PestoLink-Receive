@@ -14,11 +14,27 @@ BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830",
 
 char terminalText[TERMINAL_CHAR_LENGTH]; // make space to create terminal text in for printfTerminal
 
-void taskUpdatePestoLink(void* pvParameters){
-    while (true) {
-        PestoLink.update();
-        vTaskDelay(pdMS_TO_TICKS(1));
+void taskUpdatePestoLink(void* pvParameters){  
+  while (true) {
+    BLEDevice central = BLE.central();
+
+    if (!central) {
+      PestoLink._isConnected = false;
+    } else if (!central.connected()) {
+      PestoLink._isConnected = false;
+    } else if((uint8_t)*(CharacteristicGamepad.value()) != 0x01){
+      PestoLink._isConnected = false;
+    } else {
+      PestoLink._isConnected = true;
     }
+    
+    //for(int i = 0; i < 20; i++){
+    //  Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
+    //}
+    //Serial.println(" ");
+
+    vTaskDelay(pdMS_TO_TICKS(1));
+  }
 }
 
 
@@ -47,32 +63,6 @@ void PestoLinkParser::begin(const char *localName) {
   BLE.advertise();
 
   xTaskCreatePinnedToCore(taskUpdatePestoLink, "taskUpdatePestoLink", 4096, NULL, 2, NULL, 1);
-}
-
-bool PestoLinkParser::update() {
-  BLEDevice central = BLE.central();
-
-  _isConnected = false;
-
-  if (!central) {
-	return false;
-  }
-  
-  if (!central.connected()) {
-	return false;
-  }
-  
-  if((uint8_t)*(CharacteristicGamepad.value()) != 0x01){
-    return false;
-  }
-  
-  //for(int i = 0; i < 20; i++){
-  //  Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
-  //}
-  //Serial.println(" ");
-  _isConnected = true;
-
-  return true;
 }
 
 float PestoLinkParser::getAxis(uint8_t axis_num) {

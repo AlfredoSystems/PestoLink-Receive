@@ -9,8 +9,7 @@
 class PestoLinkParser {
     public:
         void begin(const char *localName);
-        bool update();
-
+        bool update(){return _isConnected;};
         bool isConnected(){return _isConnected;};
 
         float getAxis(uint8_t button_num);
@@ -25,12 +24,13 @@ class PestoLinkParser {
         void printTerminal(const char *text);
         void printfTerminal(const char * format, ... );
         void setTerminalPeriod(uint32_t period){_TerminalPeriodMs = period;};	
+        
+        volatile bool _isConnected;
 
     private:
         uint32_t _TerminalPeriodMs;
         uint32_t _lastTelemetryMs;
         uint32_t _lastTerminalMs;
-        bool _isConnected;
 };
 
 extern PestoLinkParser PestoLink;
