@@ -9,40 +9,44 @@ PestoLinkParser PestoLink;
 BLEService ServicePestoBle("27df26c5-83f4-4964-bae0-d7b7cb0a1f54");
 
 BLECharacteristic CharacteristicGamepad("452af57e-ad27-422c-88ae-76805ea641a9", BLEWriteWithoutResponse, 18, true);
-BLECharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify, 11, true);
+BLECharacteristic	CharacteristicTelemetry("266d9d74-3e10-4fcd-88d2-cb63b5324d0c", BLERead | BLENotify, 12, true);
 BLECharacteristic CharacteristicTerminal("433ec275-a494-40ab-98c2-4785a19bf830", BLERead | BLENotify, TERMINAL_RESULT_LENGTH, true);
 
 char terminalText[TERMINAL_CHAR_LENGTH]; // make space to create terminal text in for printfTerminal
 
+static uint8_t telemetryPacket[12];
+
 void taskUpdatePestoLink(void* pvParameters){  
   while (true) {
     BLEDevice central = BLE.central();
+    bool connected = central && central.connected() && (*(CharacteristicGamepad.value()) == 0x01);
 
-    if (!central) {
-      PestoLink._isConnected = false;
-    } else if (!central.connected()) {
-      PestoLink._isConnected = false;
-    } else if((uint8_t)*(CharacteristicGamepad.value()) != 0x01){
-      PestoLink._isConnected = false;
-    } else {
-      PestoLink._isConnected = true;
+    PestoLink._isConnected = connected;
+
+    static uint32_t lastTelemetrySend = 0;
+    if (millis() - lastTelemetrySend >= 200) { // 5 times per second
+      lastTelemetrySend = millis();
+
+      uint8_t telemetryData[12];
+      memcpy(telemetryData, telemetryPacket, sizeof(telemetryPacket));
+      // Reset rumble trigger after copying
+      if (telemetryPacket[11] > 0) {
+          telemetryPacket[11] = 0;
+      }
+
+      CharacteristicTelemetry.writeValue(telemetryData, 12, false);
     }
-    
-    //for(int i = 0; i < 20; i++){
-    //  Serial.print((uint8_t)*(CharacteristicGamepad.value() + i)); Serial.print(", ");
-    //}
-    //Serial.println(" ");
 
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
 
 
 void PestoLinkParser::begin(const char *localName) {
   _isConnected = false;
-	_lastTelemetryMs = 0;
   _lastTerminalMs = 0;
   _TerminalPeriodMs = 200;
+  memset(telemetryPacket, 0, sizeof(telemetryPacket));
 
   if (!BLE.begin()) {
     Serial.println("starting Bluetooth® Low Energy module failed!");
@@ -71,11 +75,11 @@ float PestoLinkParser::getAxis(uint8_t axis_num) {
 }
 
 uint8_t PestoLinkParser::getRawAxis(uint8_t axis_num) {
-  return (uint8_t)*( CharacteristicGamepad.value() + axis_num + 0x01);
+  uint8_t value = (uint8_t)*( CharacteristicGamepad.value() + axis_num + 0x01);
+  return value;
 }
 
 bool PestoLinkParser::buttonHeld(uint8_t button_num) {
-  
   uint8_t raw_buttons_LSB = (uint8_t)*( CharacteristicGamepad.value() + 5);
   uint8_t raw_buttons_MSB = (uint8_t)*( CharacteristicGamepad.value() + 6);
 
@@ -114,33 +118,29 @@ void PestoLinkParser::printBatteryVoltage(float batteryVoltage){
 }
 
 void PestoLinkParser::printTelemetry(const char *telemetry,const char *hexCode){
-  if(_lastTelemetryMs + 500 > millis()) return;
-
-  uint8_t result[11];
-
   // Loop over the first eight characters of the input
   for (int i = 0; i < 8; i++) {
       // If there's a character at this position, use its ASCII value
       if (telemetry[i] != '\0') {
-          result[i] = static_cast<uint8_t>(telemetry[i]);
+          telemetryPacket[i] = static_cast<uint8_t>(telemetry[i]);
       } else {
           // If we're out of characters, set the rest to null (0)
-          result[i] = 0;
+          telemetryPacket[i] = 0;
       }
   }
 
   // Adjust pointer if the hex code starts with "0x"
   if (hexCode[0] == '0' && hexCode[1] == 'x') hexCode += 2;
   long color = strtol(hexCode, nullptr, 16);
-  result[8] = (color >> 16) & 0xFF;
-  result[9] = (color >> 8) & 0xFF;
-  result[10] = color & 0xFF;
-  
-  CharacteristicTelemetry.writeValue(result, 11, false); 
-
-  _lastTelemetryMs = millis();
+  telemetryPacket[8] = (color >> 16) & 0xFF;
+  telemetryPacket[9] = (color >> 8) & 0xFF;
+  telemetryPacket[10] = color & 0xFF;
 }
 
+void PestoLinkParser::rumble(){
+  telemetryPacket[11] = 1;
+}
+ 
 void PestoLinkParser::clearTerminal(){
 
   if(_lastTerminalMs + _TerminalPeriodMs > millis())return;

@@ -20,16 +20,16 @@ class PestoLinkParser {
         void printBatteryVoltage(float batteryVoltage);
         void printTelemetry(const char *telemetry, const char *hexCode = "0x808080");	
 
+        void rumble();
         void clearTerminal();
         void printTerminal(const char *text);
         void printfTerminal(const char * format, ... );
-        void setTerminalPeriod(uint32_t period){_TerminalPeriodMs = period;};	
-        
+        void setTerminalPeriod(uint32_t period){_TerminalPeriodMs = period;};
+        	
         volatile bool _isConnected;
 
     private:
         uint32_t _TerminalPeriodMs;
-        uint32_t _lastTelemetryMs;
         uint32_t _lastTerminalMs;
 };
 
