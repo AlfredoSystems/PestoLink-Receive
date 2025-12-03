@@ -9,7 +9,7 @@
 class PestoLinkParser {
     public:
         void begin(const char *localName);
-        bool update(){return _isConnected;};
+        [[deprecated("use isConnected() instead. This function will be removed soon!")]] bool update(){return _isConnected;};
         bool isConnected(){return _isConnected;};
 
         float getAxis(uint8_t button_num);
