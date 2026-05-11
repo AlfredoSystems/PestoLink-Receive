@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include <inttypes.h>
 #include <ArduinoBLE.h>
+#include "esp32-hal-bt-mem.h"
 #include "Keys.h"
 
 class PestoLinkParser {
