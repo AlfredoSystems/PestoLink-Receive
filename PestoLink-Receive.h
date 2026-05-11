@@ -4,7 +4,9 @@
 #include "Arduino.h"
 #include <inttypes.h>
 #include <ArduinoBLE.h>
+#if __has_include("esp32-hal-bt-mem.h")
 #include "esp32-hal-bt-mem.h"
+#endif
 #include "Keys.h"
 
 class PestoLinkParser {
