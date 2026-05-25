@@ -10,30 +10,32 @@
 #include "Keys.h"
 
 class PestoLinkParser {
-    public:
-        void begin(const char *localName);
-        [[deprecated("use isConnected() instead. This function will be removed soon!")]] bool update(){return _isConnected;};
-        bool isConnected(){return _isConnected;};
+  public:
+    void begin(const char *localName);
+    [[deprecated("use isConnected() instead. This function will be removed soon!")]] bool update(){return _isConnected;};
+    bool isConnected(){return _isConnected;};
 
-        float getAxis(uint8_t button_num);
-        uint8_t getRawAxis(uint8_t button_num);
-        bool buttonHeld(uint8_t button_num);
-		bool keyHeld(Key key);
+    float getAxis(uint8_t axis_num);
+    uint8_t getRawAxis(uint8_t axis_num);
+    bool buttonHeld(uint8_t button_num);
+    bool keyHeld(Key key);
 
-        void printBatteryVoltage(float batteryVoltage);
-        void printTelemetry(const char *telemetry, const char *hexCode = "0x808080");	
+    void printBatteryVoltage(float batteryVoltage);
+    void printTelemetry(const char *telemetry, const char *hexCode = "0x808080");
 
-        void rumble();
-        void clearTerminal();
-        void printTerminal(const char *text);
-        void printfTerminal(const char * format, ... );
-        void setTerminalPeriod(uint32_t period){_TerminalPeriodMs = period;};
-        	
-        volatile bool _isConnected;
+    void rumble();
+    void clearTerminal();
+    void printTerminal(const char *text);
+    void printfTerminal(const char *format, ...);
+    void setTerminalPeriod(uint32_t period){_TerminalPeriodMs = period;};
 
-    private:
-        uint32_t _TerminalPeriodMs;
-        uint32_t _lastTerminalMs;
+  private:
+    volatile bool _isConnected;
+    uint32_t _TerminalPeriodMs;
+    uint32_t _lastTerminalMs;
+    TaskHandle_t _taskHandle;
+
+    friend void taskUpdatePestoLink(void* pvParameters);
 };
 
 extern PestoLinkParser PestoLink;
