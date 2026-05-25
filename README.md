@@ -2,7 +2,7 @@
 
 Do you want to Control your ESP32 robot wirelessly over Bluetooth? PestoLink-Receive is the library for you! Once you set up your robot with PestoLink-Receive, you can open the web app [PestoLink-Online](https://github.com/AlfredoSystems/PestoLink-Online), connect to your ESP32 with Bluetooth, and drive your robot in real time!
 
-This library is a BLE alternitive to [AlfredoConnect-Receive](https://github.com/AlfredoElectronics/AlfredoConnect-Receive)
+This library is a BLE alternative to [AlfredoConnect-Receive](https://github.com/AlfredoElectronics/AlfredoConnect-Receive)
 
 ### Installation
 
@@ -20,9 +20,9 @@ Then, go to Tools > Board > Boards Manager. Search for “ESP32” and install t
 
 ### Robot Code
 
-1. Open the example file `NoU2-ArcadeBot.ino` in the Arduino IDE.
+1. Create a new sketch in the Arduino IDE and include this library with `#include <PestoLink-Receive.h>`. Call `PestoLink.begin("your robot name")` in `setup()`.
 
-2. find the String `"ESP32 Bluetooth"` and change the text to `"your robot name"` (quotes are required).
+2. Use `PestoLink.getAxis(0)` and `PestoLink.buttonHeld(0)` in `loop()` to read controller input.
 
 3. Select the ESP32 board. Go to Tools > Board and select ESP32 Dev Module from the long list.
 
