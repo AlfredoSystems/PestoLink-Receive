@@ -11,7 +11,7 @@
 
 class PestoLinkParser {
   public:
-    void begin(const char *localName);
+    bool begin(const char *localName);
     [[deprecated("use isConnected() instead. This function will be removed soon!")]] bool update(){return _isConnected;};
     bool isConnected(){return _isConnected;};
 

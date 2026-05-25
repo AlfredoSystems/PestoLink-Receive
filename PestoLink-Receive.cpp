@@ -44,16 +44,20 @@ void taskUpdatePestoLink(void* pvParameters) {
 }
 
 
-void PestoLinkParser::begin(const char *localName) {
+bool PestoLinkParser::begin(const char *localName) {
   _isConnected = false;
   _lastTerminalMs = 0;
   _TerminalPeriodMs = 200;
   _taskHandle = NULL;
   memset(telemetryPacket, 0, sizeof(telemetryPacket));
 
-  if (!BLE.begin()) {
-    Serial.println("starting Bluetooth® Low Energy module failed!");
-    while (1);
+  uint32_t startMs = millis();
+  while (!BLE.begin()) {
+    if (millis() - startMs >= 10000) {
+      Serial.println("starting Bluetooth® Low Energy module failed!");
+      return false;
+    }
+    delay(100);
   }
 
   BLE.setLocalName(localName);
@@ -72,6 +76,7 @@ void PestoLinkParser::begin(const char *localName) {
   if (_taskHandle == NULL) {
     xTaskCreatePinnedToCore(taskUpdatePestoLink, "taskUpdatePestoLink", 8192, NULL, 2, &_taskHandle, 1);
   }
+  return true;
 }
 
 float PestoLinkParser::getAxis(uint8_t axis_num) {
